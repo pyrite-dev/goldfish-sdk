@@ -1,0 +1,8 @@
+*.o
+*.exe
+sdk
+/obj
+/bin
+*.make
+Makefile
+imgui.ini
