@@ -1,11 +1,15 @@
 #include "sdk.h"
 
+#include <stdio.h>
+
 #define RGFWDEF
 #include <RGFW.h>
 #include <imgui_impl_rgfw.h>
 #include <imgui_impl_opengl2.h>
 
 #include <GL/gl.h>
+
+#include <gf_version.h>
 
 RGFW_window* win;
 ImGuiIO*     io;
@@ -17,8 +21,7 @@ enum SDK_UI_SCENE {
 int scene;
 
 void sdk_ui_scene(void) {
-	int open_about = 0;
-	ImVec2 sz;
+	int    open_about = 0;
 	ImVec2 pos;
 
 	if(ImGui::BeginMainMenuBar()) {
@@ -53,21 +56,33 @@ void sdk_ui_scene(void) {
 		ImGui::OpenPopup("###About");
 	}
 
-	sz  = ImVec2(400, 200);
-	pos = ImVec2(win->r.w / 2 - sz.x / 2, win->r.h / 2 - sz.y / 2);
+	pos = ImVec2(win->r.w / 2 - 350 / 2, win->r.h / 2 - 150 / 2);
 	ImGui::SetNextWindowPos(pos);
-	ImGui::SetNextWindowSize(sz);
+	ImGui::SetNextWindowSize(ImVec2(350, 150));
 	if(ImGui::BeginPopupModal("About GoldFish SDK###About", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-		sz  = ImVec2(75, 25);
+		char	     buf[512];
+		gf_version_t ver;
+
+		gf_version_get(&ver);
+
+		sprintf(buf, "Engine version %s", ver.full);
+
 		pos = ImGui::GetContentRegionMax();
-		
-		pos.x -= sz.x;
-		pos.y -= sz.y;
+
+		pos.x -= 75;
+		pos.y -= 25;
 
 		ImGui::SetCursorPos(pos);
-		if(ImGui::Button("OK", sz)){
+		if(ImGui::Button("OK", ImVec2(75, 25))) {
 			ImGui::CloseCurrentPopup();
 		}
+
+		ImGui::SetCursorPos(ImGui::GetCursorStartPos());
+		ImGui::Text("GoldFish SDK");
+		ImGui::Text(buf);
+		ImGui::Text("Copyright (c) 2025 Pyrite Development Team");
+		ImGui::Text("https://github.com/pyrite-dev/goldfish-sdk");
+
 		ImGui::EndPopup();
 	}
 }
