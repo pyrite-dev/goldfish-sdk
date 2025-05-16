@@ -18,6 +18,8 @@ int scene;
 
 void sdk_ui_scene(void) {
 	int open_about = 0;
+	ImVec2 sz;
+	ImVec2 pos;
 
 	if(ImGui::BeginMainMenuBar()) {
 		if(ImGui::BeginMenu("File")) {
@@ -48,14 +50,24 @@ void sdk_ui_scene(void) {
 	}
 
 	if(open_about) {
-		ImVec2 sz  = ImVec2(400, 200);
-		ImVec2 pos = ImVec2(win->r.w / 2 - sz.x / 2, win->r.h / 2 - sz.y / 2);
-
-		ImGui::SetNextWindowPos(pos);
-		ImGui::SetNextWindowSize(sz);
 		ImGui::OpenPopup("###About");
 	}
+
+	sz  = ImVec2(400, 200);
+	pos = ImVec2(win->r.w / 2 - sz.x / 2, win->r.h / 2 - sz.y / 2);
+	ImGui::SetNextWindowPos(pos);
+	ImGui::SetNextWindowSize(sz);
 	if(ImGui::BeginPopupModal("About GoldFish SDK###About", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+		sz  = ImVec2(75, 25);
+		pos = ImGui::GetContentRegionMax();
+		
+		pos.x -= sz.x;
+		pos.y -= sz.y;
+
+		ImGui::SetCursorPos(pos);
+		if(ImGui::Button("OK", sz)){
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::EndPopup();
 	}
 }
