@@ -76,13 +76,13 @@ void sdk_ui_scene(void) {
 		}
 
 		ImGui::SetCursorPos(ImGui::GetCursorStartPos());
-		if(ImGui::BeginTabBar("AboutTabBar")){
-			if(ImGui::BeginTabItem("GoldFish SDK###AboutGoldFishSDK")){
+		if(ImGui::BeginTabBar("AboutTabBar")) {
+			if(ImGui::BeginTabItem("GoldFish SDK###AboutGoldFishSDK")) {
 				char	     buf[512];
 				gf_version_t ver;
-			
+
 				gf_version_get(&ver);
-			
+
 				sprintf(buf, "Engine version %s", ver.full);
 
 				ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x / 2 - 128 / 2);
@@ -99,8 +99,8 @@ void sdk_ui_scene(void) {
 				ImGui::EndTabItem();
 			}
 
-			if(ImGui::BeginTabItem("Contact###AboutGoldFishContact")){
-				if(ImGui::BeginTable("ContactTable", 2, ImGuiTableFlags_Borders)){
+			if(ImGui::BeginTabItem("Contact###AboutGoldFishContact")) {
+				if(ImGui::BeginTable("ContactTable", 2, ImGuiTableFlags_Borders)) {
 					ImGui::TableSetupColumn("Platform");
 					ImGui::TableSetupColumn("Location");
 					ImGui::TableHeadersRow();
