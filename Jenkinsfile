@@ -23,9 +23,9 @@ pipeline {
 						sh "git submodule update --init --recursive"
 						sh "premake5 gmake --engine=dynamic --opengl=gdi"
 						sh "gmake config=release_win64 -j9"
-						sh "cp ./bin/Release/Win64/sdk.exe sdk64.exe
+						sh "./tool/pack.sh Win64 sdk sdk64.zip"
 						archiveArtifacts(
-							"sdk64.exe"
+							"sdk64.zip"
 						)
 					}
 					post {
@@ -40,9 +40,9 @@ pipeline {
 						sh "git submodule update --init --recursive"
 						sh "premake5 gmake --engine=dynamic --opengl=gdi"
 						sh "gmake config=release_win32 -j9"
-						sh "cp ./bin/Release/Win32/sdk.exe sdk32.exe
+						sh "./tool/pack.sh Win32 sdk sdk32.zip"
 						archiveArtifacts(
-							"sdk32.exe"
+							"sdk32.zip"
 						)
 					}
 					post {
