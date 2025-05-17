@@ -59,8 +59,16 @@ project("SDK")
 	links({
 		"GoldFish"
 	})
+	filter({
+		"system:windows",
+		"toolset:gcc or toolset:clang"
+	})
+		links({
+			"stdc++:static"
+		})
 	filter({"system:windows"})
 		links({
+			"opengl32",
 			"glu32"
 		})
 	filter({"system:not windows"})
