@@ -24,6 +24,10 @@ void sdk_ui_scene(void) {
 
 	if(ImGui::BeginMainMenuBar()) {
 		if(ImGui::BeginMenu("File")) {
+			if(ImGui::MenuItem("New")) {
+				scene = SDK_UI_PROJECT;
+			}
+			ImGui::Separator();
 			if(ImGui::MenuItem("Quit")) {
 				RGFW_window_setShouldClose(win, 1);
 			}
@@ -55,6 +59,21 @@ void sdk_ui_scene(void) {
 		opengl_area.y = menu.y;
 		opengl_area.w = win->r.w;
 		opengl_area.h = win->r.h - menu.y;
+	} else {
+		opengl_area.x = 200;
+		opengl_area.y = menu.y;
+		opengl_area.w = win->r.w - opengl_area.x;
+		opengl_area.h = win->r.h - menu.y - 100;
+
+		ImGui::SetNextWindowPos(ImVec2(0, menu.y));
+		ImGui::SetNextWindowSize(ImVec2(opengl_area.x, win->r.h - menu.y));
+		ImGui::Begin("Navigation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(opengl_area.x, menu.y + opengl_area.h));
+		ImGui::SetNextWindowSize(ImVec2(win->r.w - opengl_area.x, win->r.h - opengl_area.h - menu.y));
+		ImGui::Begin("Stuff", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+		ImGui::End();
 	}
 
 	if(open_about) {

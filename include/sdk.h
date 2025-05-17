@@ -8,7 +8,8 @@ extern "C" {
 #include <GL/gl.h>
 
 enum SDK_UI_SCENE {
-	SDK_UI_INIT = 0
+	SDK_UI_INIT = 0,
+	SDK_UI_PROJECT
 };
 
 typedef struct ui_area_ {

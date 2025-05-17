@@ -24,7 +24,7 @@ void sdk_opengl_render(void) {
 	if(scene == SDK_UI_INIT) {
 		int   i;
 		int   s	  = 0;
-		float p[] = {1, 1, 1, 1};
+		float p[] = {2, 2, 2, 1};
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
