@@ -1,33 +1,20 @@
 #include "sdk.h"
 
+#include "rubik.h"
+
 #include <stdio.h>
+
+#include <stb_image.h>
 
 #define RGFWDEF
 #include <RGFW.h>
 #include <imgui_impl_rgfw.h>
 #include <imgui_impl_opengl2.h>
 
-#include <GL/gl.h>
-
 #include <gf_version.h>
 
 RGFW_window* win;
 ImGuiIO*     io;
-
-enum SDK_UI_SCENE {
-	SDK_UI_INIT = 0
-};
-
-typedef struct ui_area_ {
-	int x;
-	int y;
-	int w;
-	int h;
-} ui_area_t;
-
-ui_area_t opengl_area;
-
-int scene;
 
 void sdk_ui_scene(void) {
 	int    open_about = 0;
@@ -37,6 +24,7 @@ void sdk_ui_scene(void) {
 	if(ImGui::BeginMainMenuBar()) {
 		if(ImGui::BeginMenu("File")) {
 			if(ImGui::MenuItem("Quit")) {
+				RGFW_window_setShouldClose(win, 1);
 			}
 			ImGui::EndMenu();
 		}
@@ -95,9 +83,15 @@ void sdk_ui_scene(void) {
 
 		ImGui::SetCursorPos(ImGui::GetCursorStartPos());
 		ImGui::Text("GoldFish SDK");
+
 		ImGui::Text(buf);
-		ImGui::Text("Copyright (c) 2025 Pyrite Development Team");
-		ImGui::Text("https://github.com/pyrite-dev/goldfish-sdk");
+
+		ImGui::Text("Copyright (c) 2025");
+		ImGui::SameLine();
+		ImGui::TextLinkOpenURL("Pyrite Development Team", "https://github.com/pyrite-dev");
+
+		ImGui::NewLine();
+		ImGui::TextLinkOpenURL("https://github.com/pyrite-dev/goldfish-sdk");
 
 		ImGui::EndPopup();
 	}
@@ -108,11 +102,25 @@ void sdk_ui_init(void) {
 	unsigned char* px;
 	int	       tw, th;
 
+	unsigned char* img;
+	int	       iw, ih, ic;
+
 	scene = SDK_UI_INIT;
 
 	win = RGFW_createWindow("GoldFish SDK", RGFW_RECT(0, 0, 800, 600), RGFW_windowCenter);
 	RGFW_window_makeCurrent(win);
 	win->exitKey = RGFW_keyNULL;
+
+	img = stbi_load_from_memory(rubik, rubik_len, &iw, &ih, &ic, 4);
+	if(img != NULL) {
+		glGenTextures(1, &cube);
+		glBindTexture(GL_TEXTURE_2D, cube);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iw, ih, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		stbi_image_free(img);
+	}
 
 	ImGui::CreateContext();
 	io	      = &ImGui::GetIO();
@@ -147,8 +155,10 @@ void sdk_ui_loop(void) {
 		glEnable(GL_SCISSOR_TEST);
 		glViewport(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
 		glScissor(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
-		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.1, 0.1, 0.1, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		sdk_opengl_render();
 
 		glDisable(GL_SCISSOR_TEST);
 

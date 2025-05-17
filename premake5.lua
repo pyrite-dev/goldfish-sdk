@@ -45,7 +45,8 @@ project("SDK")
 	includedirs({
 		"engine/include",
 		"include",
-		"external/imgui"
+		"external/imgui",
+		"external/stb"
 	})
 	files({
 		"src/*.c",

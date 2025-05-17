@@ -1,2 +1,2 @@
 #!/bin/sh
-exec clang-format --verbose -i `find src include "(" -name "*.c" -or -name "*.h" -or -name "*.cpp" ")"`
+exec clang-format --verbose -i `find src include "(" -name "*.c" -or -name "*.h" -or -name "*.cpp" ")" -and -not -name "rubik.c"`
