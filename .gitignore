@@ -1,6 +1,7 @@
 *.o
 *.exe
 *.core
+*.zip
 sdk
 /obj
 /bin
