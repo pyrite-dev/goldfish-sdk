@@ -172,6 +172,5 @@ void sdk_ui_loop(void) {
 	ImGui_ImplOpenGL2_Shutdown();
 	ImGui_ImplRgfw_Shutdown();
 	ImGui::DestroyContext();
-	RGFW_window_close(win);
 }
 }
