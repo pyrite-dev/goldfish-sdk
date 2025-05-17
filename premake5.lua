@@ -58,6 +58,15 @@ project("SDK")
 	links({
 		"GoldFish"
 	})
+	filter({"system:windows"})
+		links({
+			"glu32"
+		})
+	filter({"system:not windows"})
+		links({
+			"GLU"
+		})
+	filter({})
 	-- Call this if you are gonna use my engine...
 	gf_link_stuffs("options:engine=static")
 	filter("configurations:Debug")

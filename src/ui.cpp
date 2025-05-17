@@ -18,11 +18,21 @@ enum SDK_UI_SCENE {
 	SDK_UI_INIT = 0
 };
 
+typedef struct ui_area_ {
+	int x;
+	int y;
+	int w;
+	int h;
+} ui_area_t;
+
+ui_area_t opengl_area;
+
 int scene;
 
 void sdk_ui_scene(void) {
 	int    open_about = 0;
 	ImVec2 pos;
+	ImVec2 menu;
 
 	if(ImGui::BeginMainMenuBar()) {
 		if(ImGui::BeginMenu("File")) {
@@ -46,10 +56,16 @@ void sdk_ui_scene(void) {
 			ImGui::EndMenu();
 		}
 
+		menu = ImGui::GetWindowSize();
+
 		ImGui::EndMainMenuBar();
 	}
 
 	if(scene == SDK_UI_INIT) {
+		opengl_area.x = 0;
+		opengl_area.y = menu.y;
+		opengl_area.w = win->r.w;
+		opengl_area.h = win->r.h - menu.y;
 	}
 
 	if(open_about) {
@@ -110,6 +126,7 @@ void sdk_ui_init(void) {
 
 	io->DisplayFramebufferScale = ImVec2(1, 1);
 }
+
 void sdk_ui_loop(void) {
 	while(!RGFW_window_shouldClose(win)) {
 		ImDrawData* data;
@@ -126,6 +143,14 @@ void sdk_ui_loop(void) {
 		glViewport(0, 0, win->r.w, win->r.h);
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glEnable(GL_SCISSOR_TEST);
+		glViewport(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
+		glScissor(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
+		glClearColor(0, 0, 0, 1);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glDisable(GL_SCISSOR_TEST);
 
 		glViewport(0, 0, win->r.w, win->r.h);
 		ImGui::Render();
