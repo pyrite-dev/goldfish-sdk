@@ -1,6 +1,7 @@
 #include "sdk.h"
 
-#include "rubik.h"
+#include "img_rubik.h"
+#include "img_logo.h"
 
 #include <stdio.h>
 
@@ -60,17 +61,10 @@ void sdk_ui_scene(void) {
 		ImGui::OpenPopup("###About");
 	}
 
-	pos = ImVec2(win->r.w / 2 - 350 / 2, win->r.h / 2 - 150 / 2);
+	pos = ImVec2(win->r.w / 2 - 485 / 2, win->r.h / 2 - 300 / 2);
 	ImGui::SetNextWindowPos(pos);
-	ImGui::SetNextWindowSize(ImVec2(350, 150));
+	ImGui::SetNextWindowSize(ImVec2(485, 300));
 	if(ImGui::BeginPopupModal("About GoldFish SDK###About", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-		char	     buf[512];
-		gf_version_t ver;
-
-		gf_version_get(&ver);
-
-		sprintf(buf, "Engine version %s", ver.full);
-
 		pos = ImGui::GetContentRegionMax();
 
 		pos.x -= 75;
@@ -82,16 +76,56 @@ void sdk_ui_scene(void) {
 		}
 
 		ImGui::SetCursorPos(ImGui::GetCursorStartPos());
-		ImGui::Text("GoldFish SDK");
+		if(ImGui::BeginTabBar("AboutTabBar")){
+			if(ImGui::BeginTabItem("GoldFish SDK###AboutGoldFishSDK")){
+				char	     buf[512];
+				gf_version_t ver;
+			
+				gf_version_get(&ver);
+			
+				sprintf(buf, "Engine version %s", ver.full);
 
-		ImGui::Text(buf);
+				ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x / 2 - 128 / 2);
+				ImGui::Image((ImTextureID)(intptr_t)logo, ImVec2(128, 128));
 
-		ImGui::Text("Copyright (c) 2025");
-		ImGui::SameLine();
-		ImGui::TextLinkOpenURL("Pyrite Development Team", "https://github.com/pyrite-dev");
+				ImGui::Text(buf);
 
-		ImGui::NewLine();
-		ImGui::TextLinkOpenURL("https://github.com/pyrite-dev/goldfish-sdk");
+				ImGui::Text("Copyright (c) 2025");
+				ImGui::SameLine();
+				ImGui::TextLinkOpenURL("Pyrite Development Team", "https://github.com/pyrite-dev");
+
+				ImGui::NewLine();
+				ImGui::TextLinkOpenURL("https://github.com/pyrite-dev/goldfish-sdk");
+				ImGui::EndTabItem();
+			}
+
+			if(ImGui::BeginTabItem("Contact###AboutGoldFishContact")){
+				if(ImGui::BeginTable("ContactTable", 2, ImGuiTableFlags_Borders)){
+					ImGui::TableSetupColumn("Platform");
+					ImGui::TableSetupColumn("Location");
+					ImGui::TableHeadersRow();
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::Text("Discord");
+					ImGui::TableNextColumn();
+					ImGui::TextLinkOpenURL("https://discord.gg/yHWZVwu2Ta");
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::Text("IRC");
+					ImGui::TableNextColumn();
+					ImGui::Text("#nishbox at");
+					ImGui::SameLine();
+					ImGui::TextLinkOpenURL("irc.nishi.boats", "ircs://irc.nishi.boats:6697");
+
+					ImGui::EndTable();
+				}
+
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
 
 		ImGui::EndPopup();
 	}
@@ -111,13 +145,24 @@ void sdk_ui_init(void) {
 	RGFW_window_makeCurrent(win);
 	win->exitKey = RGFW_keyNULL;
 
-	img = stbi_load_from_memory(rubik, rubik_len, &iw, &ih, &ic, 4);
+	img = stbi_load_from_memory(img_rubik, img_rubik_len, &iw, &ih, &ic, 4);
 	if(img != NULL) {
 		glGenTextures(1, &cube);
 		glBindTexture(GL_TEXTURE_2D, cube);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iw, ih, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		stbi_image_free(img);
+	}
+
+	img = stbi_load_from_memory(img_logo, img_logo_len, &iw, &ih, &ic, 4);
+	if(img != NULL) {
+		glGenTextures(1, &logo);
+		glBindTexture(GL_TEXTURE_2D, logo);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iw, ih, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		stbi_image_free(img);
 	}

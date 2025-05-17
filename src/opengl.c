@@ -8,13 +8,14 @@
 double deg = 0;
 
 GLuint cube;
+GLuint logo;
 
 void sdk_opengl_render(void) {
-	double sz = 0.5;
+	double sz = 0.6;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(120, (double)opengl_area.w / opengl_area.h, 0.1, 100);
+	gluPerspective(90, (double)opengl_area.w / opengl_area.h, 0.1, 100);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glEnable(GL_DEPTH_TEST);
@@ -63,7 +64,7 @@ void sdk_opengl_render(void) {
 			if(i == 1) glRotatef(90, 1, 0, 0);
 		}
 		glPopMatrix();
-		deg += 180.0 / 60;
+		deg += 30.0 / 60;
 		glDisable(GL_LIGHTING);
 	}
 	glDisable(GL_CULL_FACE);

@@ -24,6 +24,7 @@ extern ui_area_t opengl_area;
 
 /* decl in opengl.c */
 extern GLuint cube;
+extern GLuint logo;
 
 void sdk_opengl_render(void);
 
