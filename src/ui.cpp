@@ -183,6 +183,9 @@ void sdk_ui_init(void) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		RGFW_window_setIcon(win, img, RGFW_AREA(iw, ih), 4);
+
 		stbi_image_free(img);
 	}
 
