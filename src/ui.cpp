@@ -168,8 +168,10 @@ void sdk_ui_init(void) {
 	}
 
 	ImGui::CreateContext();
-	io	      = &ImGui::GetIO();
-	io->DeltaTime = 1.0 / 60.0;
+	io		= &ImGui::GetIO();
+	io->DeltaTime	= 1.0 / 60.0;
+	io->IniFilename = NULL;
+	io->LogFilename = NULL;
 
 	io->Fonts->GetTexDataAsRGBA32(&px, &tw, &th);
 
