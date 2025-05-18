@@ -14,8 +14,63 @@
 
 #include <gf_version.h>
 
+#ifdef USE_CLOCK
+#include <time.h>
+
+typedef clock_t time_ms_t;
+#else
+#ifdef _WIN32
+#include <windows.h>
+
+typedef DWORD time_ms_t;
+#else
+#include <sys/time.h>
+
+typedef struct timeval time_ms_t;
+#endif
+#endif
+
 RGFW_window* win;
 ImGuiIO*     io;
+
+#ifdef _WIN32
+LARGE_INTEGER hpc_freq;
+#endif
+
+void time_ms(time_ms_t* dtime) {
+#ifdef USE_CLOCK
+	*dtime = clock();
+#else
+#ifdef _WIN32
+	if(hpc_freq.QuadPart > 0) {
+		LARGE_INTEGER tick;
+		QueryPerformanceCounter(&tick);
+		*dtime = tick.QuadPart / (hpc_freq.QuadPart / 1000);
+		/* divide by freq for seconds, by 1000 more for ms */
+	} else {
+		/* system has no hpc hw support */
+		*dtime = timeGetTime();
+	}
+#else
+	gettimeofday(dtime, NULL);
+#endif
+#endif
+}
+
+double time_ms_number(time_ms_t* dtime) {
+	double r = 0;
+#ifdef USE_CLOCK
+	r += (double)(*dtime) / (CLOCKS_PER_SEC / 1000);
+#else
+#ifdef _WIN32
+	r += (double)(*dtime);
+#else
+	r += (double)dtime->tv_sec * 1000.0;
+	r += (double)dtime->tv_usec / 1000.0;
+#endif
+#endif
+	return r;
+}
 
 void sdk_ui_scene(void) {
 	int    open_about = 0;
@@ -150,6 +205,8 @@ void sdk_ui_scene(void) {
 	}
 }
 
+time_ms_t last_ms;
+
 extern "C" {
 void sdk_ui_init(void) {
 	unsigned char* px;
@@ -157,6 +214,12 @@ void sdk_ui_init(void) {
 
 	unsigned char* img;
 	int	       iw, ih, ic;
+
+#ifdef _WIN32
+	if(QueryPerformanceFrequency(&hpc_freq) <= 0){
+		hpc_freq.QuadPart = 0;
+	}
+#endif
 
 	scene = SDK_UI_INIT;
 
@@ -203,11 +266,15 @@ void sdk_ui_init(void) {
 	ImGui::StyleColorsDark();
 
 	io->DisplayFramebufferScale = ImVec2(1, 1);
+
+	time_ms(&last_ms);
 }
 
 void sdk_ui_loop(void) {
+	time_ms_t ms;
 	while(!RGFW_window_shouldClose(win)) {
 		ImDrawData* data;
+		time_ms(&ms);
 
 		RGFW_window_checkEvents(win, RGFW_eventNoWait);
 		io->DisplaySize = ImVec2(win->r.w, win->r.h);
@@ -238,6 +305,9 @@ void sdk_ui_loop(void) {
 		ImGui_ImplOpenGL2_RenderDrawData(data);
 
 		RGFW_window_swapBuffers(win);
+
+		io->DeltaTime = 1000.0 / (time_ms_number(&ms) - time_ms_number(&last_ms));
+		last_ms = ms;
 	}
 	ImGui_ImplOpenGL2_Shutdown();
 	ImGui_ImplRgfw_Shutdown();
