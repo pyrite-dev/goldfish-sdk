@@ -162,6 +162,7 @@ void sdk_ui_init(void) {
 
 	win = RGFW_createWindow("GoldFish SDK", RGFW_RECT(0, 0, 800, 600), RGFW_windowCenter);
 	RGFW_window_makeCurrent(win);
+	RGFW_window_swapInterval(win, 1);
 	win->exitKey = RGFW_keyNULL;
 
 	img = stbi_load_from_memory(img_rubik, img_rubik_len, &iw, &ih, &ic, 4);
