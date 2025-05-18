@@ -5,6 +5,8 @@
 sdk
 /obj
 /bin
+/doc/*.ps
+/doc/*.pdf
 *.make
 Makefile
 imgui.ini

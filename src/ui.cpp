@@ -16,6 +16,7 @@
 
 RGFW_window* win;
 ImGuiIO*     io;
+bool opengl;
 
 void sdk_ui_scene(void) {
 	int    open_about = 0;
@@ -54,12 +55,14 @@ void sdk_ui_scene(void) {
 		ImGui::EndMainMenuBar();
 	}
 
+	opengl = true;
 	if(scene == SDK_UI_INIT) {
 		opengl_area.x = 0;
 		opengl_area.y = menu.y;
 		opengl_area.w = win->r.w;
 		opengl_area.h = win->r.h - menu.y;
-	} else {
+	} else if(scene == SDK_UI_PROJECT) {
+		opengl = false;
 		opengl_area.x = 200;
 		opengl_area.y = menu.y;
 		opengl_area.w = win->r.w - opengl_area.x;
@@ -68,6 +71,9 @@ void sdk_ui_scene(void) {
 		ImGui::SetNextWindowPos(ImVec2(0, menu.y));
 		ImGui::SetNextWindowSize(ImVec2(opengl_area.x, win->r.h - menu.y));
 		ImGui::Begin("Navigation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+		if(ImGui::TreeNodeEx("Root", ImGuiTreeNodeFlags_DefaultOpen)){
+			ImGui::TreePop();
+		}
 		ImGui::End();
 
 		ImGui::SetNextWindowPos(ImVec2(opengl_area.x, menu.y + opengl_area.h));
@@ -159,6 +165,7 @@ void sdk_ui_init(void) {
 	int	       iw, ih, ic;
 
 	scene = SDK_UI_INIT;
+	scene++;
 
 	win = RGFW_createWindow("GoldFish SDK", RGFW_RECT(0, 0, 800, 600), RGFW_windowCenter);
 	RGFW_window_makeCurrent(win);
@@ -229,17 +236,19 @@ void sdk_ui_loop(void) {
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glEnable(GL_SCISSOR_TEST);
-		glViewport(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
-		glScissor(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
-		glClearColor(0.1, 0.1, 0.1, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		sdk_opengl_render();
-
-		glDisable(GL_SCISSOR_TEST);
-
-		glViewport(0, 0, win->r.w, win->r.h);
+		if(opengl){
+			glEnable(GL_SCISSOR_TEST);
+			glViewport(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
+			glScissor(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
+			glClearColor(0.1, 0.1, 0.1, 1);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+			sdk_opengl_render();
+	
+			glDisable(GL_SCISSOR_TEST);
+	
+			glViewport(0, 0, win->r.w, win->r.h);
+		}
 		ImGui::Render();
 		data = ImGui::GetDrawData();
 		ImGui_ImplOpenGL2_RenderDrawData(data);
