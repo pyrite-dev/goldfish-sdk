@@ -69,7 +69,8 @@ project("SDK")
 	filter({"system:windows"})
 		links({
 			"opengl32",
-			"glu32"
+			"glu32",
+			"winmm"
 		})
 	filter({"system:not windows"})
 		links({
