@@ -18,10 +18,46 @@ RGFW_window* win;
 ImGuiIO*     io;
 bool opengl;
 
+ImVec2 menu;
+
+int toolselect = 0;
+const char* tools[] = {"Info viewer", "Map editor", "Resource editor", NULL};
+void toolbox(void){
+	ImGui::SetNextWindowPos(ImVec2(0, menu.y));
+	ImGui::SetNextWindowSize(ImVec2(opengl_area.x, 250));
+	ImGui::Begin("Toolbox", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+	ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+	if(ImGui::BeginListBox("###Tools")){
+		int i;
+		for(i = 0; tools[i] != NULL; i++){
+			bool selected = i == toolselect;
+			if(ImGui::Selectable(tools[i], selected)) toolselect = i;
+		}
+		ImGui::EndListBox();
+	}
+	ImGui::End();
+}
+
+void nav(void){
+	ImGui::SetNextWindowPos(ImVec2(0, menu.y + 250));
+	ImGui::SetNextWindowSize(ImVec2(opengl_area.x, win->r.h - menu.y - 250));
+	ImGui::Begin("Navigation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+	if(ImGui::TreeNodeEx("Root", ImGuiTreeNodeFlags_DefaultOpen)){
+		ImGui::TreePop();
+	}
+	ImGui::End();
+}
+
+void stuff(void){
+	ImGui::SetNextWindowPos(ImVec2(opengl_area.x, menu.y + opengl_area.h));
+	ImGui::SetNextWindowSize(ImVec2(win->r.w - opengl_area.x, win->r.h - opengl_area.h - menu.y));
+	ImGui::Begin("Stuff", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+	ImGui::End();
+}
+
 void sdk_ui_scene(void) {
 	int    open_about = 0;
 	ImVec2 pos;
-	ImVec2 menu;
 
 	if(ImGui::BeginMainMenuBar()) {
 		if(ImGui::BeginMenu("File")) {
@@ -68,18 +104,11 @@ void sdk_ui_scene(void) {
 		opengl_area.w = win->r.w - opengl_area.x;
 		opengl_area.h = win->r.h - menu.y - 100;
 
-		ImGui::SetNextWindowPos(ImVec2(0, menu.y));
-		ImGui::SetNextWindowSize(ImVec2(opengl_area.x, win->r.h - menu.y));
-		ImGui::Begin("Navigation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
-		if(ImGui::TreeNodeEx("Root", ImGuiTreeNodeFlags_DefaultOpen)){
-			ImGui::TreePop();
-		}
-		ImGui::End();
+		toolbox();
 
-		ImGui::SetNextWindowPos(ImVec2(opengl_area.x, menu.y + opengl_area.h));
-		ImGui::SetNextWindowSize(ImVec2(win->r.w - opengl_area.x, win->r.h - opengl_area.h - menu.y));
-		ImGui::Begin("Stuff", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
-		ImGui::End();
+		nav();
+
+		stuff();
 	}
 
 	if(open_about) {
