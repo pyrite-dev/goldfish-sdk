@@ -10,9 +10,10 @@ double deg = 0;
 GLuint cube;
 GLuint logo;
 
-void sdk_opengl_render(void) {
-	double sz = 0.6;
+int	    tool_select = 0;
+const char* tools[]	= {"Info viewer", "Map editor", NULL};
 
+void sdk_opengl_render(void) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(90, (double)opengl_area.w / opengl_area.h, 0.1, 100);
@@ -22,9 +23,10 @@ void sdk_opengl_render(void) {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	if(scene == SDK_UI_INIT) {
-		int   i;
-		int   s	  = 0;
-		float p[] = {2, 2, 2, 1};
+		double sz = 0.6;
+		int    i;
+		int    s   = 0;
+		float  p[] = {2, 2, 2, 1};
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);

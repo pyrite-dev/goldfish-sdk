@@ -16,39 +16,56 @@
 
 RGFW_window* win;
 ImGuiIO*     io;
-bool opengl;
+bool	     opengl;
+int	     open_about = 0;
+int	     open_file	= 0;
 
 ImVec2 menu;
 
-int toolselect = 0;
-const char* tools[] = {"Info viewer", "Map editor", "Resource editor", NULL};
-void toolbox(void){
+void toolbox(void) {
 	ImGui::SetNextWindowPos(ImVec2(0, menu.y));
 	ImGui::SetNextWindowSize(ImVec2(opengl_area.x, 250));
 	ImGui::Begin("Toolbox", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
 	ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
-	if(ImGui::BeginListBox("###Tools")){
+	if(ImGui::BeginListBox("###Tools")) {
 		int i;
-		for(i = 0; tools[i] != NULL; i++){
-			bool selected = i == toolselect;
-			if(ImGui::Selectable(tools[i], selected)) toolselect = i;
+		for(i = 0; tools[i] != NULL; i++) {
+			bool selected = i == tool_select;
+			if(ImGui::Selectable(tools[i], selected)) tool_select = i;
 		}
 		ImGui::EndListBox();
 	}
 	ImGui::End();
 }
 
-void nav(void){
+void nav(void) {
+	double s = win->r.h - menu.y - 250 - 35;
+	double b = 0;
+	ImVec2 sz;
+
 	ImGui::SetNextWindowPos(ImVec2(0, menu.y + 250));
-	ImGui::SetNextWindowSize(ImVec2(opengl_area.x, win->r.h - menu.y - 250));
+	ImGui::SetNextWindowSize(ImVec2(opengl_area.x, s));
 	ImGui::Begin("Navigation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
-	if(ImGui::TreeNodeEx("Root", ImGuiTreeNodeFlags_DefaultOpen)){
+	if(ImGui::TreeNodeEx("Root", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::TreePop();
 	}
 	ImGui::End();
+
+	ImGui::SetNextWindowPos(ImVec2(0, menu.y + 250 + s));
+	ImGui::SetNextWindowSize(ImVec2(opengl_area.x, 35));
+	ImGui::Begin("NavigationButton", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+	sz   = ImGui::GetContentRegionAvail();
+	b    = (opengl_area.x - sz.x) / 2;
+	sz.x = (sz.x - b) / 2;
+	if(ImGui::Button("Add", sz)) {
+		open_file = 1;
+	}
+	ImGui::SameLine();
+	ImGui::Button("Remove", sz);
+	ImGui::End();
 }
 
-void stuff(void){
+void stuff(void) {
 	ImGui::SetNextWindowPos(ImVec2(opengl_area.x, menu.y + opengl_area.h));
 	ImGui::SetNextWindowSize(ImVec2(win->r.w - opengl_area.x, win->r.h - opengl_area.h - menu.y));
 	ImGui::Begin("Stuff", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
@@ -56,13 +73,17 @@ void stuff(void){
 }
 
 void sdk_ui_scene(void) {
-	int    open_about = 0;
 	ImVec2 pos;
+	ImVec2 sz;
+
+	open_about = 0;
+	open_file  = 0;
 
 	if(ImGui::BeginMainMenuBar()) {
 		if(ImGui::BeginMenu("File")) {
 			if(ImGui::MenuItem("New")) {
-				scene = SDK_UI_PROJECT;
+				scene	    = SDK_UI_PROJECT;
+				tool_select = 0;
 			}
 			ImGui::Separator();
 			if(ImGui::MenuItem("Quit")) {
@@ -98,11 +119,16 @@ void sdk_ui_scene(void) {
 		opengl_area.w = win->r.w;
 		opengl_area.h = win->r.h - menu.y;
 	} else if(scene == SDK_UI_PROJECT) {
-		opengl = false;
+		if(tool_select == 0) opengl = false;
 		opengl_area.x = 200;
 		opengl_area.y = menu.y;
-		opengl_area.w = win->r.w - opengl_area.x;
-		opengl_area.h = win->r.h - menu.y - 100;
+		if(opengl) {
+			opengl_area.w = win->r.w - opengl_area.x;
+			opengl_area.h = win->r.h - menu.y - 100;
+		} else {
+			opengl_area.w = 0;
+			opengl_area.h = 0;
+		}
 
 		toolbox();
 
@@ -113,6 +139,10 @@ void sdk_ui_scene(void) {
 
 	if(open_about) {
 		ImGui::OpenPopup("###About");
+	}
+
+	if(open_file) {
+		ImGui::OpenPopup("###File");
 	}
 
 	pos = ImVec2(win->r.w / 2 - 485 / 2, win->r.h / 2 - 300 / 2);
@@ -183,6 +213,14 @@ void sdk_ui_scene(void) {
 
 		ImGui::EndPopup();
 	}
+
+	sz  = ImVec2(win->r.w * 0.75, win->r.h * 0.75);
+	pos = ImVec2(win->r.w / 2 - sz.x / 2, win->r.h / 2 - sz.y / 2);
+	ImGui::SetNextWindowPos(pos);
+	ImGui::SetNextWindowSize(sz);
+	if(ImGui::BeginPopupModal("Select a file###File", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+		ImGui::EndPopup();
+	}
 }
 
 extern "C" {
@@ -242,10 +280,10 @@ void sdk_ui_init(void) {
 }
 
 void sdk_ui_loop(void) {
-	int calc = 0;
+	int    calc  = 0;
 	double delta = io->DeltaTime;
 	while(!RGFW_window_shouldClose(win)) {
-		char title[512];
+		char	    title[512];
 		ImDrawData* data;
 
 		sprintf(title, "GoldFish SDK (%.1f FPS)", 1.0 / delta);
@@ -265,17 +303,17 @@ void sdk_ui_loop(void) {
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		if(opengl){
+		if(opengl) {
 			glEnable(GL_SCISSOR_TEST);
 			glViewport(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
 			glScissor(opengl_area.x, win->r.h - opengl_area.y - opengl_area.h, opengl_area.w, opengl_area.h);
 			glClearColor(0.1, 0.1, 0.1, 1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 			sdk_opengl_render();
-	
+
 			glDisable(GL_SCISSOR_TEST);
-	
+
 			glViewport(0, 0, win->r.w, win->r.h);
 		}
 		ImGui::Render();
@@ -285,9 +323,9 @@ void sdk_ui_loop(void) {
 		RGFW_window_swapBuffers(win);
 
 		calc++;
-		if(calc == 60){
+		if(calc == 60) {
 			delta = io->DeltaTime;
-			calc = 0;
+			calc  = 0;
 		}
 	}
 	ImGui_ImplOpenGL2_Shutdown();

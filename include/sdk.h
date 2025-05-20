@@ -24,8 +24,10 @@ extern int	 scene;
 extern ui_area_t opengl_area;
 
 /* decl in opengl.c */
-extern GLuint cube;
-extern GLuint logo;
+extern GLuint	   cube;
+extern GLuint	   logo;
+extern int	   tool_select;
+extern const char* tools[];
 
 void sdk_opengl_render(void);
 
