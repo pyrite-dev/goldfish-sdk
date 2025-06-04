@@ -179,7 +179,7 @@ void sdk_ui_init(void) {
 	int	       iw, ih, ic;
 
 	scene = SDK_UI_INIT;
-	scene++;
+//	scene++;
 
 	win = RGFW_createWindow("GoldFish SDK", RGFW_RECT(0, 0, 800, 600), RGFW_windowCenter);
 	RGFW_window_makeCurrent(win);
